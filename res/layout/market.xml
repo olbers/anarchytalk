@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+android:keepScreenOn="true"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+>
+	<LinearLayout
+	android:id="@+id/wrapper"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:isScrollContainer="true"
+	android:layout_marginBottom="30dip"
+	android:layout_alignParentTop="true"
+	android:background="#062c36"
+	>
+		<ListView 
+		android:id="@+id/market"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent" 
+		android:scrollingCache="false"
+		android:divider="#466c76"
+		/>
+	</LinearLayout>
+	<TextView
+	android:id="@+id/footer"
+	android:layout_width="180dip"
+	android:layout_height="30dip"
+	android:text="Market Monitor"
+	android:textSize="14dip"
+	android:layout_marginTop="-26dip"
+	android:layout_marginLeft="5dip"
+	android:layout_alignParentBottom="true"
+	android:layout_alignParentLeft="true"
+	android:background="#000000"
+	android:gravity="left"
+	/>
+	<TextView
+	android:id="@+id/status"
+	android:layout_width="fill_parent"
+	android:layout_height="30dip"
+	android:text="..."
+	android:textSize="14dip"
+	android:layout_marginTop="-30dip"
+	android:layout_marginLeft="185dip"
+	android:layout_marginRight="5dip"
+	android:layout_alignParentBottom="true"
+	android:layout_alignParentRight="true"
+	android:background="#000000"
+	android:gravity="right"
+	/>
+</LinearLayout>

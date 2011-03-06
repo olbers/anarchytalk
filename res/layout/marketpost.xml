@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:id="@+id/messagepost"
+android:layout_width="fill_parent"
+android:paddingLeft="10sp"
+android:paddingRight="10sp"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:paddingTop="2sp"
+>
+	<TextView
+	android:id="@+id/from"
+	android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+	android:textColor="#FFFFFF"
+	android:lineSpacingExtra="2dip"
+	android:paddingTop="2dip"
+	android:textStyle="normal"
+	/>
+	<TextView 
+	android:id="@+id/message"
+	android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+	android:textColor="#FFFFFF"
+	android:linksClickable="true"
+	android:autoLink="web"
+	android:lineSpacingExtra="2dip"
+	android:paddingBottom="3dip"
+    />
+</LinearLayout>

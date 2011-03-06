@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>AOU Mobile</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta name="format-detection" content="telephone=no" /> 
+		<style>
+			body, html {
+				padding:0;
+				margin:0;
+			}
+			
+			html {
+				background-color:#103545;
+				color:#fff;
+				font-family:Verdana, Geneva, sans-serif;
+				font-size:14px;
+			}
+			
+			a {
+				color:#FC6;
+				text-decoration:none;
+			}
+			a.active {
+				font-weight:bold;
+			}
+			
+			.retry {
+				color:#FC6;
+			}
+		
+			header {
+				padding:10px;
+				color:#fff;
+				font-size:16px;
+				font-weight:bold;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4c4c4c), color-stop(15%,#595959), color-stop(52%,#000000), color-stop(84%,#1c1c1c), color-stop(100%,#131313));
+				margin-bottom:-1px;
+			}
+					
+			.content { 
+				padding:10px;
+			}
+		</style>
+		<script>
+			function reloadLast() {
+				AOUApp.reloadLast();
+			}
+		</script>
+	</head>
+	<body>
+		<header>AO Universe</header>
+		<div class="content">
+			Sorry! The page could not be loaded
+			<br />
+			<br />
+			<span class="retry" onclick="reloadLast();">Try again</span>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/start"
+          android:icon="@drawable/icon_start"
+          android:title="@string/startpage" />
+    <item android:id="@+id/calendar"
+          android:icon="@drawable/icon_calendar"
+          android:title="@string/calendar" />
+    <item android:id="@+id/guides"
+          android:icon="@drawable/icon_guides"
+          android:title="@string/guides" />
+    <item android:id="@+id/update"
+          android:icon="@drawable/icon_connect"
+          android:title="@string/update" />
+</menu>
