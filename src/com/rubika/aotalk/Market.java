@@ -122,6 +122,7 @@ public class Market extends Activity {
     		new updateMarketData().execute();
     		
     		if(UPDATE) {
+    			handler.removeCallbacks(this);
     			handler.postDelayed(this, (Integer.parseInt(INTERVAL.trim()) * 1000));
     		}
     	}
@@ -188,7 +189,14 @@ public class Market extends Activity {
     	
     	//http post
     	try{
-	        HttpClient httpclient = new DefaultHttpClient();
+    		/*
+    		HttpParams httpParameters = new BasicHttpParams();
+    		HttpConnectionParams.setConnectionTimeout(httpParameters, 2000);
+    		HttpConnectionParams.setSoTimeout(httpParameters, (Integer.parseInt(INTERVAL.trim()) * 1000) - 2000);
+
+    		HttpClient httpclient = new DefaultHttpClient(httpParameters);
+    		*/
+    		HttpClient httpclient = new DefaultHttpClient();
 	        HttpPost httppost = new HttpPost(url);
 	        
 	        HttpResponse response = httpclient.execute(httppost);
@@ -202,7 +210,7 @@ public class Market extends Activity {
     	        String line = null;
     	        
     	        while ((line = reader.readLine()) != null) {
-    	                sb.append(line + "\n");
+    	        	sb.append(line + "\n");
     	        }
     	        
     	        is.close();
@@ -222,53 +230,56 @@ public class Market extends Activity {
     	ChatParser chat = new ChatParser();
     	
     	try{
-    		if((!resultData.startsWith("null")) && resultData != null) {
-    			JSONArray jArray = new JSONArray(resultData);
-    				    			
-    	        for(int i = jArray.length() - 1; i >= 0; i--){
-    	        	JSONObject json_data = jArray.getJSONObject(i);
-	                
-    	        	int side = 0;
-    	        	
-	                if(json_data.getInt("omni") == 1) {
-	                	side = 1;
-	                }
-	                
-	                if(json_data.getInt("clan") == 1) {
-	                	side = 2;
-	                }
-	                
-	                if(json_data.getInt("neut") == 1) {
-	                	side = 3;
-	                }
-	                
-	                marketposts.add(new MarketMessage(
-                		json_data.getLong("time"),
-                		chat.parse(json_data.getString("message"),
-                		ChatParser.TYPE_PLAIN_MESSAGE), 
-                		json_data.getString("player"), 
-                		null,
-                		side
-	                ));
-	                
-	                if(json_data.getLong("time") > lastfetch) {
-	                	lastfetch = json_data.getLong("time");
-	                }
-    	        }
-    	        
-    	    	msgadapter.notifyDataSetChanged();
-    	    	handler.post(setDone);
-    	    	
-    			if(firstrun) {
-    		    	marketlist.setSelection(marketposts.size());
-    		    	firstrun = false;
-    			}
-    		} else if(resultData == null) {
+    		if(resultData != null) {
+	    		if((!resultData.startsWith("null"))) {
+	    			JSONArray jArray = new JSONArray(resultData);
+	    				    			
+	    	        for(int i = jArray.length() - 1; i >= 0; i--){
+	    	        	JSONObject json_data = jArray.getJSONObject(i);
+		                
+	    	        	int side = 0;
+	    	        	
+		                if(json_data.getInt("omni") == 1) {
+		                	side = 1;
+		                }
+		                
+		                if(json_data.getInt("clan") == 1) {
+		                	side = 2;
+		                }
+		                
+		                if(json_data.getInt("neut") == 1) {
+		                	side = 3;
+		                }
+		                
+		                marketposts.add(new MarketMessage(
+	                		json_data.getLong("time"),
+	                		chat.parse(json_data.getString("message"),
+	                		ChatParser.TYPE_PLAIN_MESSAGE), 
+	                		json_data.getString("player"), 
+	                		null,
+	                		side
+		                ));
+		                
+		                if(json_data.getLong("time") > lastfetch) {
+		                	lastfetch = json_data.getLong("time");
+		                }
+	    	        }
+	    	        
+	    	    	msgadapter.notifyDataSetChanged();
+	    	    	
+	    			if(firstrun) {
+	    		    	marketlist.setSelection(marketposts.size());
+	    		    	firstrun = false;
+	    			}
+	    		}
+    		} else {
     			handler.post(setError);
     		}
     	} catch(JSONException e){
     	        Log.e(APPTAG, "Error parsing data " + e.toString());
     	}
+    	
+    	handler.post(setDone);
     }
     
     @Override

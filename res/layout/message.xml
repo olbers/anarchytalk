@@ -19,5 +19,6 @@ android:paddingTop="2sp"
 	android:lineSpacingExtra="2dip"
 	android:paddingTop="1dip"
 	android:paddingBottom="1dip"
+	android:textColorLink="#5a90f4"
     />
 </LinearLayout>

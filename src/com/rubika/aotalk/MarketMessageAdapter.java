@@ -63,15 +63,15 @@ public class MarketMessageAdapter extends BaseAdapter {
         String namecolor = "fff";
         
         if(entry.getSide() == 1) {
-        	namecolor = "0000ff";
+        	namecolor = "48b4ff";
         }
         
         if(entry.getSide() == 2) {
-        	namecolor = "ff0000";
+        	namecolor = "f86868";
         }
         
         if(entry.getSide() == 3) {
-        	namecolor = "00ffff";
+        	namecolor = "f1f16e";
         }
         
         name = "<font color=#" + namecolor + ">" + name + "</font>";

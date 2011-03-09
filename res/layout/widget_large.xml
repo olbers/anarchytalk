@@ -39,5 +39,6 @@ android:layout_height="match_parent"
 	android:layout_marginRight="1dip"
 	android:layout_marginTop="8dip"
 	android:clickable="true"
-	 />
+	android:textColorLink="#5a90f4"
+	/>
 </LinearLayout>

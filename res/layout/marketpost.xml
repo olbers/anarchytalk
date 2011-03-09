@@ -27,5 +27,6 @@ android:paddingTop="2sp"
 	android:autoLink="web"
 	android:lineSpacingExtra="2dip"
 	android:paddingBottom="3dip"
+	android:textColorLink="#5a90f4"
     />
 </LinearLayout>
