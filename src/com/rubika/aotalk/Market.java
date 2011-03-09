@@ -34,14 +34,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -49,8 +48,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 public class Market extends Activity {
 	protected static final String APPTAG = "--> AOTalk::Market";
@@ -60,17 +59,16 @@ public class Market extends Activity {
 	private MarketMessageAdapter msgadapter;
 	private long lastfetch = 0;
 	private boolean firstrun = true;
-	private Handler marketHandler = new Handler();
 	private SharedPreferences settings;
+	private TextView status;
 	
 	private String SERVER = "0";
 	private String INTERVAL = "5";
 	private boolean UPDATE = true;
-	
-	private TextView status;
-	private ProgressDialog loader;
 	private String resultData;
-
+	
+    private Handler handler = new Handler();
+	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
@@ -102,40 +100,49 @@ public class Market extends Activity {
 	    		return false;
 			}
         });
-    	
-    	loader = new ProgressDialog(this);
-    	loader.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    	loader.setTitle(getResources().getString(R.string.loading_data));
-		loader.setMessage(getResources().getString(R.string.please_wait));
-		loader.show();
-        
-    	marketHandler.post(setLoading);
-        getMarketData();
-    }
-	
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event)  {
-	    if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-	        marketHandler.removeCallbacks(Market_Tick);
-	        finish();
-	        return true;
-	    }
 
-	    return super.onKeyDown(keyCode, event);
+        handler.post(update);
 	}
 	
-	private Runnable Market_Tick = new Runnable() {
+	private class updateMarketData extends AsyncTask<Void, Void, String> {
+	     protected String doInBackground(Void... str) {
+	    	 handler.post(setLoading);
+	    	 
+	    	 return getMarketData();
+	     }
+
+	     protected void onPostExecute(String result) {
+	    	 resultData = result;
+	    	 handler.post(outputResult);
+	     }
+	}
+	
+    private Runnable update = new Runnable() {
+    	public void run() {
+    		new updateMarketData().execute();
+    		
+    		if(UPDATE) {
+    			handler.postDelayed(this, (Integer.parseInt(INTERVAL.trim()) * 1000));
+    		}
+    	}
+
+    };
+        
+	final Runnable outputResult = new Runnable() {
+        public void run() {
+           	updateResultsInUi();
+        }
+    };
+	
+	private Runnable setError = new Runnable() {
 		public void run() {
-	    	marketHandler.post(setLoading);
-	    	
-			getMarketData();
+			status.setText("Error!");
 		}
 	};
 	
 	private Runnable setLoading = new Runnable() {
 		public void run() {
 			status.setText("Loading...");
-	    	Log.d(APPTAG, "LOADING");
 		}
 	};
 	
@@ -156,70 +163,10 @@ public class Market extends Activity {
 			}
 			
 			status.setText(statustext);
-			loader.dismiss();
-			
-	    	Log.d(APPTAG, "DONE");
 		}
 	};
-	
-	final Runnable outputResult = new Runnable() {
-        public void run() {
-           	updateResultsInUi();
-        }
-    };
-    
-    private void updateResultsInUi() {
-    	ChatParser chat = new ChatParser();
-    	
-    	try{
-    		if(!resultData.startsWith("null")) {
-    			JSONArray jArray = new JSONArray(resultData);
-    				    			
-    	        for(int i = jArray.length() - 1; i >= 0; i--){
-    	        	JSONObject json_data = jArray.getJSONObject(i);
-	                
-    	        	int side = 0;
-    	        	
-	                if(json_data.getInt("omni") == 1) {
-	                	side = 1;
-	                }
-	                
-	                if(json_data.getInt("clan") == 1) {
-	                	side = 2;
-	                }
-	                
-	                if(json_data.getInt("neut") == 1) {
-	                	side = 3;
-	                }
-	                
-	                marketposts.add(new MarketMessage(
-                		json_data.getLong("time"),
-                		chat.parse(json_data.getString("message"),
-                		ChatParser.TYPE_PLAIN_MESSAGE), 
-                		json_data.getString("player"), 
-                		null,
-                		side
-	                ));
-	                
-	                if(json_data.getLong("time") > lastfetch) {
-	                	lastfetch = json_data.getLong("time");
-	                }
-    	        }
-    	        
-    	    	msgadapter.notifyDataSetChanged();
-    	    	
-    			if(firstrun) {
-    		    	marketlist.setSelection(marketposts.size());
-    		    	firstrun = false;
-    			}
-    		}
-    	} catch(JSONException e){
-    	        Log.e(APPTAG, "Error parsing data " + e.toString());
-    	}
-    	marketHandler.post(setDone);
-    }	
-    
-    private void getMarketData() {    	
+
+    private String getMarketData() {    	
     	String mode = "?mode=json";
     	String order = "&order=desc";
     	String time = "&time=" + lastfetch; 	
@@ -260,20 +207,68 @@ public class Market extends Activity {
     	        
     	        is.close();
     	 
-    	        resultData = sb.toString();
-    	        marketHandler.post(outputResult);
+    	        return sb.toString();
 	    	} catch(Exception e){
 	    	    Log.e(APPTAG, "Error converting result " + e.toString());
+	    	    return null;
 	    	}
     	} catch(Exception e){
 	        Log.e(APPTAG, "Error in http connection " + e.toString());
+	        return null;
     	}
-		
-    	if(UPDATE) {
-			marketHandler.removeCallbacks(Market_Tick);
-			marketHandler.postDelayed(Market_Tick, (Integer.parseInt(INTERVAL.trim()) * 1000));
-    	}
+    }
+    
+    private void updateResultsInUi() {
+    	ChatParser chat = new ChatParser();
     	
+    	try{
+    		if((!resultData.startsWith("null")) && resultData != null) {
+    			JSONArray jArray = new JSONArray(resultData);
+    				    			
+    	        for(int i = jArray.length() - 1; i >= 0; i--){
+    	        	JSONObject json_data = jArray.getJSONObject(i);
+	                
+    	        	int side = 0;
+    	        	
+	                if(json_data.getInt("omni") == 1) {
+	                	side = 1;
+	                }
+	                
+	                if(json_data.getInt("clan") == 1) {
+	                	side = 2;
+	                }
+	                
+	                if(json_data.getInt("neut") == 1) {
+	                	side = 3;
+	                }
+	                
+	                marketposts.add(new MarketMessage(
+                		json_data.getLong("time"),
+                		chat.parse(json_data.getString("message"),
+                		ChatParser.TYPE_PLAIN_MESSAGE), 
+                		json_data.getString("player"), 
+                		null,
+                		side
+	                ));
+	                
+	                if(json_data.getLong("time") > lastfetch) {
+	                	lastfetch = json_data.getLong("time");
+	                }
+    	        }
+    	        
+    	    	msgadapter.notifyDataSetChanged();
+    	    	handler.post(setDone);
+    	    	
+    			if(firstrun) {
+    		    	marketlist.setSelection(marketposts.size());
+    		    	firstrun = false;
+    			}
+    		} else if(resultData == null) {
+    			handler.post(setError);
+    		}
+    	} catch(JSONException e){
+    	        Log.e(APPTAG, "Error parsing data " + e.toString());
+    	}
     }
     
     @Override
@@ -284,11 +279,11 @@ public class Market extends Activity {
         UPDATE   = settings.getBoolean("marketautoupdate", UPDATE);
         INTERVAL = settings.getString("marketinterval", INTERVAL);
         
-    	marketHandler.post(setDone);
+    	handler.post(setDone);
 		
     	if(UPDATE) {
-	        marketHandler.removeCallbacks(Market_Tick);
-			marketHandler.postDelayed(Market_Tick, (Integer.parseInt(INTERVAL.trim()) * 1000));
+	        handler.removeCallbacks(update);
+			handler.post(update);
     	}
 		
     	Log.d(APPTAG, "RESUME");
@@ -298,7 +293,7 @@ public class Market extends Activity {
     public void onPause() {
         super.onPause();
         
-    	marketHandler.removeCallbacks(Market_Tick);
+    	handler.removeCallbacks(update);
 
     	Log.d(APPTAG, "PAUSE");
 	}
@@ -330,7 +325,7 @@ public class Market extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
 	        case R.id.update:
-	        	getMarketData();
+	        	handler.post(update);
 	        	return true;
 	        case R.id.settings:
 	        	showSettings();
