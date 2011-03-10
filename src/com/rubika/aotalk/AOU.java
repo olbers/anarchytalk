@@ -80,7 +80,7 @@ public class AOU extends Activity {
         
         aouweb.setWebViewClient(new AOUWebViewClient());
         aouweb.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-        aouweb.setBackgroundColor(Color.parseColor("#103545"));
+        aouweb.setBackgroundColor(Color.parseColor("#062c36"));
         
         WebSettings aousettings = aouweb.getSettings();
         aousettings.setJavaScriptEnabled(true);
